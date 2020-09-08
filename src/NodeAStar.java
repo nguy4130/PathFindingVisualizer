@@ -1,5 +1,3 @@
-import javax.xml.crypto.NodeSetData;
-
 public class NodeAStar {
   NodeAStar parent;
   int[] position;
