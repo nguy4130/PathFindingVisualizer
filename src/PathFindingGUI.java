@@ -13,30 +13,68 @@ public class PathFindingGUI extends JFrame {
   private int gridDimension = 1;
   private final int APPLICATION_SIZE = 1000;
   private final int GRID_SIZE = 1000;
-
+  private static final Color START_COLOR = Color.RED;
+  private static final Color WALL_COLOR = Color.BLACK;
+  private static final Color END_COLOR = Color.BLUE;
+  private static final int START_MODE = 0;
+  private static final int WALL_MODE = 1;
+  private static final int END_MODE = 2;
+  private int mode = -1;
   // Constructor to setup the GUI components and event handlers
   public PathFindingGUI() {
 
     /** Top Panel */
     final JPanel topPanel = new JPanel();
-    topPanel.add(new JButton("Set Start"));
-    topPanel.add(new JButton("Set Wall"));
-    topPanel.add(new JButton("Set End"));
-    topPanel.add(new JLabel("Choose Algorithm"));
-    final String[] algorithms = { "------", "Dijkstra's Search", "A* Search", "Modified A* Search",
-        "Greedy Best-First Search" };
-    final JComboBox algo = new JComboBox(algorithms);
-    algo.addActionListener(new ActionListener() {
+    final JButton setStartButton = new JButton("Set Start");
+    setStartButton.addMouseListener(new MouseAdapter() {
       @Override
-      public void actionPerformed(final ActionEvent e) {
-        final JComboBox<String> combo = (JComboBox<String>) e.getSource();
-        final String selectedAlgorithm = (String) combo.getSelectedItem();
-        LOGGER.log(Level.INFO, "Choosing " + selectedAlgorithm);
+      public void mouseClicked(MouseEvent e) {
+        if(mode != START_MODE){
+          mode = START_MODE;
+        }
+        else{
+          mode = -1;
+        }
       }
     });
-    topPanel.add(algo);
-    final JTextField gridSize = new JTextField("Enter grid size");
-    gridSize.setSize(5, 10);
+
+    final JButton setWallButton = new JButton("Set Wall");
+    setWallButton.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if(mode != WALL_MODE){
+          mode = WALL_MODE;
+        }
+        else{
+          mode = -1;
+        }
+      }
+    });
+
+    final JButton setEndButton = new JButton("Set End");
+    setEndButton.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if(mode != END_MODE){
+          mode = END_MODE;
+        }
+        else{
+          mode = -1;
+        }
+      }
+    });
+
+    final JLabel chooseAlgoLabel = new JLabel("Choose Algorithm");
+    final String[] algorithms = { "------", "Dijkstra's Search", "A* Search", "Modified A* Search",
+            "Greedy Best-First Search" };
+    final JComboBox algoList = new JComboBox(algorithms);
+    algoList.addActionListener(e -> {
+      final JComboBox<String> combo = (JComboBox<String>) e.getSource();
+      final String selectedAlgorithm = (String) combo.getSelectedItem();
+      LOGGER.log(Level.INFO, "Choosing " + selectedAlgorithm);
+    });
+    JTextField gridSizeText = new JTextField("Enter grid size");
+    gridSizeText.setSize(5, 10);
     final JButton enterSize = new JButton("Enter");
     final JPanel pane = new JPanel();
     final List<List<JPanel>> grid = new ArrayList<>();
@@ -45,8 +83,8 @@ public class PathFindingGUI extends JFrame {
       @Override
       public void mousePressed(MouseEvent e) {
         try {
-          gridDimension = Integer.parseInt(gridSize.getText());
-          LOGGER.log(Level.INFO, gridSize.getText());
+          gridDimension = Integer.parseInt(gridSizeText.getText());
+          LOGGER.log(Level.INFO, gridSizeText.getText());
           /** Grid section */
           removeAllNestedList(grid);
           pane.removeAll();
@@ -62,7 +100,18 @@ public class PathFindingGUI extends JFrame {
                 @Override
                 public void mousePressed(MouseEvent e){
                   if (tile.getBackground() == Color.WHITE) {
-                    tile.setBackground(Color.BLACK);
+                    if(mode == WALL_MODE){
+                      tile.setBackground(WALL_COLOR);
+                    }
+                    else if(mode == START_MODE) {
+                      tile.setBackground(START_COLOR);
+                    }
+                    else if(mode == END_MODE) {
+                      tile.setBackground(END_COLOR);
+                    }
+                    else{
+                      tile.setBackground(Color.WHITE);
+                    }
                   } else {
                     tile.setBackground(Color.WHITE);
                   }
@@ -81,8 +130,8 @@ public class PathFindingGUI extends JFrame {
         }
       }
     });
-    final JButton render = new JButton("Render");
-    render.addMouseListener(new MouseAdapter() {
+    JButton renderButton = new JButton("Render");
+    renderButton.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
         try {
@@ -92,16 +141,22 @@ public class PathFindingGUI extends JFrame {
         }
       }
     });
-    topPanel.add(gridSize);
+
+    topPanel.add(setStartButton);
+    topPanel.add(setWallButton);
+    topPanel.add(setEndButton);
+    topPanel.add(chooseAlgoLabel);
+    topPanel.add(algoList);
+    topPanel.add(gridSizeText);
     topPanel.add(enterSize);
-    topPanel.add(render);
+    topPanel.add(renderButton);
 
     /** Set general layout */
     setLayout(new BorderLayout()); // The content-pane sets its layout
     setDefaultCloseOperation(EXIT_ON_CLOSE); // Exit program if close-window button clicked
     setTitle("PathFinding Visualizer"); // "super" JFrame sets title
     setSize(APPLICATION_SIZE, APPLICATION_SIZE + 100); // "super" JFrame sets initial size
-    setResizable(false);
+//    setResizable(false);
     setVisible(true); // "super" JFrame shows
     add(topPanel, BorderLayout.NORTH);
     add(pane, BorderLayout.CENTER);
@@ -111,11 +166,8 @@ public class PathFindingGUI extends JFrame {
   // The entry main() method
   public static void main(final String[] args) {
     // Run the GUI construction in the Event-Dispatching thread for thread-safety
-    SwingUtilities.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        new PathFindingGUI(); // Let the constructor do the job
-      }
+    SwingUtilities.invokeLater(() -> {
+      new PathFindingGUI(); // Let the constructor do the job
     });
   }
 
@@ -126,8 +178,14 @@ public class PathFindingGUI extends JFrame {
         if(grid.get(row).get(col).getBackground() == Color.WHITE){
           map[row][col] = 0;
         }
-        else {
+        else if(grid.get(row).get(col).getBackground() == START_COLOR){
+          map[row][col] = 2;
+        }
+        else if(grid.get(row).get(col).getBackground() == WALL_COLOR){
           map[row][col] = 1;
+        }
+        else if(grid.get(row).get(col).getBackground() == END_COLOR){
+          map[row][col] = 3;
         }
         System.out.print(map[row][col] + " ");
       }

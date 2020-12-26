@@ -2,101 +2,197 @@ import java.util.*;
 
 public class PathFindingCore {
   static int[][] map1 = {
-    {0, 0, 0, 0},
+    {2, 0, 0, 0},
     {0, 1, 1, 0},
     {0, 0, 1, 0},
-    {0, 1, 1, 0}
+    {0, 1, 1, 3}
   };
+
+  static int[][] map2 = {
+          {2, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+          {0, 0, 0, 0, 0, 1, 1, 0, 0, 0},
+          {0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+          {0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
+          {0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+          {0, 1, 0, 0, 0, 1, 0, 0, 0, 0},
+          {0, 1, 1, 0, 1, 1, 0, 0, 0, 0},
+          {0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+          {1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+          {0, 0, 0, 0, 0, 0, 0, 0, 0, 3}
+  };
+
+  public static void printPath(List<NodeDijkstra> path){
+    for(int i = 0; i < path.size()-1; i++){
+      System.out.print(path.get(i).toString()+" -> ");
+    }
+    System.out.println(path.get(path.size()-1).toString());
+  }
+
   public static void main(String[] args){
-    int[] start = {3, 0};
+    int[] start = {0, 0};
     int[] end = {3, 3};
-    List<NodeDijkstra> pathDijkstra = dijkstra(map1, start, end);
-    for(int i = pathDijkstra.size() -1; i >= 0; i--){
-      System.out.println(pathDijkstra.get(i).toString());
-    }
-    List<NodeAStar> pathAStar = astar(map1, start, end);
-    System.out.println();
-    for(int i = pathAStar.size() -1; i >= 0; i--){
-      System.out.println(pathAStar.get(i).toString());
-    }
+    List<NodeDijkstra> pathDijkstra = dijkstra(map1);
+    printPath(pathDijkstra);
+//    List<NodeAStar> pathAStar = astar(map1, start, end);
+//    System.out.println();
+//    for(int i = pathAStar.size() -1; i >= 0; i--){
+//      System.out.println(pathAStar.get(i).toString());
+//    }
   }
   /** Dijkstra's Search */
-  public static List<NodeDijkstra> dijkstra(int[][] map, int[] start, int[] end) {
+  public static List<NodeDijkstra> dijkstra(int[][] map) {
     int size = map.length;
-    NodeDijkstra startNode = new NodeDijkstra(start);
-    NodeDijkstra endNode = new NodeDijkstra(end);
+    NodeDijkstra start_node = null;
+    NodeDijkstra end_node = null;
     NodeDijkstra[][] grid = new NodeDijkstra[size][size];
-    for(int i = 0; i < size; i++){
-      for(int j = 0; j < size; j++){
-        int[] position = new int[2];
-        position[0] = i;
-        position[1] = j;
-        grid[i][j] = new NodeDijkstra(position);
+    for(int i = 0; i < map.length; i++){
+      for (int j = 0; j < map[i].length; j++) {
+        grid[i][j] = new NodeDijkstra(i, j);
         if(map[i][j] == 1){
           grid[i][j].blocked = true;
         }
-        else{
+        else {
           grid[i][j].blocked = false;
+          if(map[i][j] == 2) {
+            start_node = grid[i][j];
+          }
+          else if(map[i][j] == 3) {
+            end_node = grid[i][j];
+          }
         }
       }
     }
-    startNode.distance = 0;
-    Queue<NodeDijkstra> q = new LinkedList<>();
-    q.offer(startNode);
-    while(!q.isEmpty()){
-      NodeDijkstra currentNode = q.poll();
-      /** Move up */
-      if ((currentNode.position[0] - 1) >= 0){
-        NodeDijkstra tempNode = grid[currentNode.position[0]-1][currentNode.position[1]];
-        if(!tempNode.visited && !tempNode.blocked && (tempNode.distance > currentNode.distance +1)){
-          tempNode.distance = currentNode.distance + 1;
-          tempNode.parent = currentNode;
-          q.offer(tempNode);
+    start_node.distance = 0;
+    PriorityQueue<NodeDijkstra> q = new PriorityQueue<>(10, new NodeDijkstraComparator());
+    q.add(start_node);
+    while(!q.isEmpty()) {
+      NodeDijkstra current = q.poll();
+      // Move up
+      if((current.position[0] - 1) >= 0){
+        NodeDijkstra temp = grid[current.position[0]-1][current.position[1]];
+        if(!temp.visited && !temp.blocked && (temp.distance > (current.distance+1))) {
+          temp.distance = current.distance + 1;
+          temp.parent = current;
+          q.add(temp);
         }
       }
-      /** Move left */
-      if ((currentNode.position[1] - 1) >= 0){
-        NodeDijkstra tempNode = grid[currentNode.position[0]][currentNode.position[1]-1];
-        if(!tempNode.visited && !tempNode.blocked && (tempNode.distance > currentNode.distance +1)){
-          tempNode.distance = currentNode.distance + 1;
-          tempNode.parent = currentNode;
-          q.offer(tempNode);
+      // Move left
+      if((current.position[1] - 1) >= 0) {
+        NodeDijkstra temp = grid[current.position[0]][current.position[1]-1];
+        if(!temp.visited && !temp.blocked && (temp.distance > (current.distance+1))){
+          temp.distance = current.distance + 1;
+          temp.parent = current;
+          q.add(temp);
         }
       }
-      /** Move right */
-      if ((currentNode.position[1] + 1) < size){
-        NodeDijkstra tempNode = grid[currentNode.position[0]][currentNode.position[1]+1];
-        if(!tempNode.visited && !tempNode.blocked && (tempNode.distance > currentNode.distance +1)){
-          tempNode.distance = currentNode.distance + 1;
-          tempNode.parent = currentNode;
-          q.offer(tempNode);
-        }
-      } 
-      /** Move down */
-      if ((currentNode.position[0] + 1) < size){
-        NodeDijkstra tempNode = grid[currentNode.position[0]+1][currentNode.position[1]];
-        if(!tempNode.visited && !tempNode.blocked && (tempNode.distance > currentNode.distance +1)){
-          tempNode.distance = currentNode.distance + 1;
-          tempNode.parent = currentNode;
-          q.offer(tempNode);
+      // Move right
+      if((current.position[1] + 1) < size) {
+        NodeDijkstra temp = grid[current.position[0]][current.position[1]+1];
+        if(!temp.visited && !temp.blocked && (temp.distance > (current.distance+1))){
+          temp.distance = current.distance + 1;
+          temp.parent = current;
+          q.add(temp);
         }
       }
-      
-      currentNode.visited = true;
+      // Move down
+      if((current.position[0] + 1) < size) {
+        NodeDijkstra temp = grid[current.position[0]+1][current.position[1]];
+        if(!temp.visited && !temp.blocked && (temp.distance > (current.distance+1))){
+          temp.distance = current.distance + 1;
+          temp.parent = current;
+          q.add(temp);
+        }
+      }
+      current.visited = true;
     }
 
     List<NodeDijkstra> path = new ArrayList<>();
-    if(grid[endNode.position[0]][endNode.position[1]].distance != Integer.MAX_VALUE){
-      NodeDijkstra current = grid[endNode.position[0]][endNode.position[1]];
-      while(current.parent != null){
-        path.add(current.parent);
+    if(grid[end_node.position[0]][end_node.position[1]].distance != Integer.MAX_VALUE){
+      NodeDijkstra current = grid[end_node.position[0]][end_node.position[1]];
+      while(current.parent != null) {
+        path.add(0, current.parent);
         current = current.parent;
       }
     }
     else{
-      return new ArrayList<>();
+      return null;
     }
+    path.add(end_node);
     return path;
+//    NodeDijkstra startNode = new NodeDijkstra(start);
+//    NodeDijkstra endNode = new NodeDijkstra(end);
+//    NodeDijkstra[][] grid = new NodeDijkstra[size][size];
+//    for(int i = 0; i < size; i++){
+//      for(int j = 0; j < size; j++){
+//        int[] position = new int[2];
+//        position[0] = i;
+//        position[1] = j;
+//        grid[i][j] = new NodeDijkstra(position);
+//        if(map[i][j] == 1){
+//          grid[i][j].blocked = true;
+//        }
+//        else{
+//          grid[i][j].blocked = false;
+//        }
+//      }
+//    }
+//    startNode.distance = 0;
+//    Queue<NodeDijkstra> q = new LinkedList<>();
+//    q.offer(startNode);
+//    while(!q.isEmpty()){
+//      NodeDijkstra currentNode = q.poll();
+//      /** Move up */
+//      if ((currentNode.position[0] - 1) >= 0){
+//        NodeDijkstra tempNode = grid[currentNode.position[0]-1][currentNode.position[1]];
+//        if(!tempNode.visited && !tempNode.blocked && (tempNode.distance > currentNode.distance +1)){
+//          tempNode.distance = currentNode.distance + 1;
+//          tempNode.parent = currentNode;
+//          q.offer(tempNode);
+//        }
+//      }
+//      /** Move left */
+//      if ((currentNode.position[1] - 1) >= 0){
+//        NodeDijkstra tempNode = grid[currentNode.position[0]][currentNode.position[1]-1];
+//        if(!tempNode.visited && !tempNode.blocked && (tempNode.distance > currentNode.distance +1)){
+//          tempNode.distance = currentNode.distance + 1;
+//          tempNode.parent = currentNode;
+//          q.offer(tempNode);
+//        }
+//      }
+//      /** Move right */
+//      if ((currentNode.position[1] + 1) < size){
+//        NodeDijkstra tempNode = grid[currentNode.position[0]][currentNode.position[1]+1];
+//        if(!tempNode.visited && !tempNode.blocked && (tempNode.distance > currentNode.distance +1)){
+//          tempNode.distance = currentNode.distance + 1;
+//          tempNode.parent = currentNode;
+//          q.offer(tempNode);
+//        }
+//      }
+//      /** Move down */
+//      if ((currentNode.position[0] + 1) < size){
+//        NodeDijkstra tempNode = grid[currentNode.position[0]+1][currentNode.position[1]];
+//        if(!tempNode.visited && !tempNode.blocked && (tempNode.distance > currentNode.distance +1)){
+//          tempNode.distance = currentNode.distance + 1;
+//          tempNode.parent = currentNode;
+//          q.offer(tempNode);
+//        }
+//      }
+//
+//      currentNode.visited = true;
+//    }
+//
+//    List<NodeDijkstra> path = new ArrayList<>();
+//    if(grid[endNode.position[0]][endNode.position[1]].distance != Integer.MAX_VALUE){
+//      NodeDijkstra current = grid[endNode.position[0]][endNode.position[1]];
+//      while(current.parent != null){
+//        path.add(current.parent);
+//        current = current.parent;
+//      }
+//    }
+//    else{
+//      return new ArrayList<>();
+//    }
+//    return path;
   }
 
   /** A* Search */
