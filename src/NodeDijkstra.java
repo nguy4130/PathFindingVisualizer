@@ -37,10 +37,8 @@ public class NodeDijkstra extends Node{
     return this.distance < other.distance;
   }
 
-  public List<NodeDijkstra> dijkstra(int[][] map, int[] start, int[] end) {
+  public List<NodeDijkstra> dijkstra(int[][] map) {
     int size = map.length;
-//    NodeDijkstra start_node = new NodeDijkstra(start);
-//    NodeDijkstra end_node = new NodeDijkstra(end);
     NodeDijkstra start_node = null;
     NodeDijkstra end_node = null;
     NodeDijkstra[][] grid = new NodeDijkstra[size][size];
