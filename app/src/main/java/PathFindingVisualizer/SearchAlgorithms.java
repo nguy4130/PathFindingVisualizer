@@ -1,43 +1,12 @@
+package PathFindingVisualizer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-public class NodeDijkstra extends Node{
-  NodeDijkstra parent;
-  Boolean visited;
-  Boolean blocked;
-  int[] position;
-  int distance;
-
-  public NodeDijkstra(int[] position) {
-    this.position = new int[2];
-    this.position[0] = position[0];
-    this.position[1] = position[1];
-    this.distance = Integer.MAX_VALUE;
-    this.parent = null;
-    this.visited = false;
-    this.blocked = false;
-  }
-
-  public NodeDijkstra(int i, int j) {
-    this.position = new int[2];
-    this.position[0] = i;
-    this.position[1] = j;
-    this.distance = Integer.MAX_VALUE;
-    this.parent = null;
-    this.visited = false;
-    this.blocked = false;
-  }
-
-  public String toString() {
-    return "(" + this.position[0] + " , " + this.position[1] + ")";
-  }
+public class SearchAlgorithms {
   
-  public Boolean closerDistance(NodeDijkstra other){
-    return this.distance < other.distance;
-  }
-
-  public List<NodeDijkstra> dijkstra(int[][] map) {
+  public static List<NodeDijkstra> dijkstra(int[][] map, PathFindingVisualizerGUI gui) {
     int size = map.length;
     NodeDijkstra start_node = null;
     NodeDijkstra end_node = null;
@@ -60,7 +29,7 @@ public class NodeDijkstra extends Node{
       }
     }
     start_node.distance = 0;
-    PriorityQueue<NodeDijkstra> q = new PriorityQueue<>();
+    PriorityQueue<NodeDijkstra> q = new PriorityQueue<>(10, new NodeDijkstraComparator());
     q.add(start_node);
     while(!q.isEmpty()) {
       NodeDijkstra current = q.poll();
@@ -114,6 +83,11 @@ public class NodeDijkstra extends Node{
     else{
       return null;
     }
+    path.add(end_node);
+    for(int i = 0; i < path.size()-1; i++){
+      System.out.print(path.get(i).toString()+" -> ");
+    }
+    System.out.println(path.get(path.size()-1).toString());
     return path;
   }
 }

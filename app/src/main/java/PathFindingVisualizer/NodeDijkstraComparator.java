@@ -1,3 +1,5 @@
+package PathFindingVisualizer;
+
 import java.util.Comparator;
 
 public class NodeDijkstraComparator implements Comparator<NodeDijkstra> {
