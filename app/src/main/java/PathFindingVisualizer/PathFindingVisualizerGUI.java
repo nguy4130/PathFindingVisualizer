@@ -210,6 +210,9 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
       if(startIsSet && endIsSet && !selectedAlgorithm.startsWith("-")){
         backend.search(selectedAlgorithm, bitmap);
       }
+      else{
+        PathFindingVisualizerUtils.LOGGER.log(Level.SEVERE, "No Algorithm chosen!");
+      }
     } else if(eventSource == importButton) {
       int returnVal = fileChooser.showOpenDialog(null);
       if(returnVal == JFileChooser.APPROVE_OPTION){
@@ -234,6 +237,11 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
         String[] bits = sc.nextLine().trim().split(",");
         for(int j = 0; j < bits.length; j++){
           int bit = Integer.parseInt(bits[j]);
+          if(bit == START_MODE){
+            startIsSet = true;
+          } else if(bit == END_MODE){
+            endIsSet = true;
+          }
           grid.get(i).get(j).setBackground(modeToColor.get(bit));
         }
       }
