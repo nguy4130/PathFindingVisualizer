@@ -85,7 +85,13 @@ public class SearchAlgorithms {
     }
     path.add(end_node);
     for(int i = 0; i < path.size()-1; i++){
+      gui.updateTileColor(path.get(i).getPosition(), PathFindingVisualizerGUI.RESULT_COLOR);
       System.out.print(path.get(i).toString()+" -> ");
+      // try {
+      //   Thread.sleep(500);
+      // } catch (InterruptedException e) {
+      //   e.printStackTrace();
+      // }
     }
     System.out.println(path.get(path.size()-1).toString());
     return path;

@@ -118,4 +118,9 @@ public class NodeDijkstra extends Node{
     }
     return path;
   }
+
+  @Override
+  public int[] getPosition(){
+    return this.position;
+  }
 }

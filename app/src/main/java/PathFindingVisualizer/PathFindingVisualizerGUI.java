@@ -6,10 +6,12 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -19,12 +21,21 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.logging.Level;
 
 public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
   
+  public static final Color VISTING_COLOR = Color.YELLOW;
+  public static final Color RESULT_COLOR = new Color(128, 0, 0);
+
   private static final int APPLICATION_SIZE = 1000;
   private static final int GRID_SIZE = 1000;
   private static final String[] algorithms = {
@@ -35,10 +46,12 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     "Greedy Best-First Search"
   };
 
-  private static final int DEFAULT_MODE = -1;
-  private static final int WALL_MODE = 0;
-  private static final int START_MODE = 1;
-  private static final int END_MODE = 2;
+  private static Map<Integer, Color> modeToColor;
+
+  private static final int DEFAULT_MODE = 0;
+  private static final int WALL_MODE = 1;
+  private static final int START_MODE = 2;
+  private static final int END_MODE = 3;
 
   private static final Color WALL_COLOR = Color.BLACK;
   private static final Color START_COLOR = Color.RED;
@@ -53,6 +66,7 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
   private PathFindingVisualizerCore backend;
 
   private JFrame frame;
+  private JFileChooser fileChooser;
 
   /** Top Panel components */
   private JButton setStartButton;
@@ -63,13 +77,19 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
   private JButton enterSizeButton;
   private JButton renderButton;
   private JButton searchButton;
+  private JButton importButton;
 
   /** Grid Components */
   private JPanel gridPanel;
   private List<List<JPanel>> grid;
 
   public PathFindingVisualizerGUI() {
-    
+     
+    modeToColor = new HashMap<>();
+    modeToColor.put(WALL_MODE, WALL_COLOR);
+    modeToColor.put(START_MODE, START_COLOR);
+    modeToColor.put(END_MODE, END_COLOR);
+
     /** Set General Frame */
     frame = new JFrame("Pathfinding Visualizer");
     frame.setLayout(new BorderLayout());
@@ -113,6 +133,10 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     renderButton.addActionListener(this);
     topPanel.add(renderButton);
 
+    importButton = new JButton("Import");
+    importButton.addActionListener(this);
+    topPanel.add(importButton);
+
     searchButton = new JButton("Search");
     searchButton.addActionListener(this);
     topPanel.add(searchButton);
@@ -128,7 +152,10 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     startIsSet = false;
     endIsSet = false;
     gridSize = 0;
-    
+    fileChooser = new JFileChooser();
+    FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("CSV or TEXT FILES", "txt", "csv");
+    fileChooser.setFileFilter(fileFilter);
+    fileChooser.setCurrentDirectory(new File("."));
     backend = new PathFindingVisualizerCore(this);
   }
 
@@ -183,8 +210,41 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
       if(startIsSet && endIsSet && !selectedAlgorithm.startsWith("-")){
         backend.search(selectedAlgorithm, bitmap);
       }
+    } else if(eventSource == importButton) {
+      int returnVal = fileChooser.showOpenDialog(null);
+      if(returnVal == JFileChooser.APPROVE_OPTION){
+        File file = fileChooser.getSelectedFile();
+        try {
+          updateGridWithImportedFile(file);
+        } catch (FileNotFoundException exception) {
+          PathFindingVisualizerUtils.LOGGER.log(Level.SEVERE, exception.toString());
+        }
+      }
     }
   
+  }
+
+  private void updateGridWithImportedFile(File file) throws FileNotFoundException {
+    Scanner sc = new Scanner(file);
+    sc.useDelimiter(System.lineSeparator());
+    try {
+      gridSize = Integer.parseInt(sc.nextLine().trim().split(",")[0]);
+      updateGrid();
+      for(int i = 0; i < gridSize; i++) {
+        String[] bits = sc.nextLine().trim().split(",");
+        for(int j = 0; j < bits.length; j++){
+          int bit = Integer.parseInt(bits[j]);
+          grid.get(i).get(j).setBackground(modeToColor.get(bit));
+        }
+      }
+      sc.close();
+    } catch (NumberFormatException exception) {
+      PathFindingVisualizerUtils.LOGGER.log(Level.SEVERE, "Incorrect grid size format");
+    } catch (NoSuchElementException exception) {
+      PathFindingVisualizerUtils.LOGGER.log(Level.SEVERE, "The number of rows and columns must match grid size!");
+    }
+    
+    
   }
 
   private void removeAllNestedList(List<List<JPanel>> list) throws IndexOutOfBoundsException, UnsupportedOperationException{
@@ -202,18 +262,19 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     for(int i = 0; i < gridSize; i++){
       for(int j = 0; j < gridSize; j++){
         if(grid.get(i).get(j).getBackground() == WALL_COLOR){
-          res[i][j] = 1;
-          s += "1 ";
+          res[i][j] = WALL_MODE;
+          // s += WALL_MODE + " ";
         } else if(grid.get(i).get(j).getBackground() == START_COLOR){
-          res[i][j] = 2;
-          s += "2 ";
+          res[i][j] = START_MODE;
+          // s += START_MODE + " ";
         } else if(grid.get(i).get(j).getBackground() == END_COLOR){
-          res[i][j] = 3;
-          s += "3 ";
+          res[i][j] = END_MODE;
+          // s += END_COLOR + " ";
         } else {
-          res[i][j] = 0;
-          s += "0 ";
+          res[i][j] = DEFAULT_MODE;
+          // s += "0 ";
         }
+        s += res[i][j] + " ";
       }
       s += System.lineSeparator();
     }
@@ -253,6 +314,26 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     }
   }
 
+  public void updateResult(List<NodeDijkstra> path){
+    for(Node node: path){
+      int[] pos = node.getPosition();
+      if(grid.get(pos[0]).get(pos[1]).getBackground() != START_COLOR &&
+          grid.get(pos[0]).get(pos[1]).getBackground() != END_COLOR){
+            grid.get(pos[0]).get(pos[1]).setBackground(RESULT_COLOR);
+      }
+    }
+  }
+
+  public void updateTileColor(int[] pos, Color color){
+    try {
+      if(grid.get(pos[0]).get(pos[1]).getBackground() != START_COLOR &&
+          grid.get(pos[0]).get(pos[1]).getBackground() != END_COLOR){
+            grid.get(pos[0]).get(pos[1]).setBackground(RESULT_COLOR);
+      } 
+    } catch(Exception e){
+      PathFindingVisualizerUtils.LOGGER.log(Level.SEVERE, e.toString());
+    }
+  }
   @Override
   public void mousePressed(MouseEvent e) {
     // TODO Auto-generated method stub

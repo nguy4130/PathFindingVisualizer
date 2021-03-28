@@ -13,6 +13,7 @@ public class PathFindingVisualizerCore {
   public void search(String algorithm, int[][] grid) {
     if(algorithm.equals("Dijkstra's Search")){
       List<NodeDijkstra> pathDijkstra = SearchAlgorithms.dijkstra(grid, gui);
+      // gui.updateResult(pathDijkstra);
     }
   }
 }
