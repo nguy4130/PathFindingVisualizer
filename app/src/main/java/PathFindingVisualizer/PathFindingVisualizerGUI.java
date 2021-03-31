@@ -337,6 +337,7 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
       if(grid.get(pos[0]).get(pos[1]).getBackground() != START_COLOR &&
           grid.get(pos[0]).get(pos[1]).getBackground() != END_COLOR){
             grid.get(pos[0]).get(pos[1]).setBackground(RESULT_COLOR);
+            Thread.sleep(500);
       } 
     } catch(Exception e){
       PathFindingVisualizerUtils.LOGGER.log(Level.SEVERE, e.toString());
