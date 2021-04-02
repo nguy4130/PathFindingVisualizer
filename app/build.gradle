@@ -29,7 +29,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'PathFindingVisualizer.App'
+    mainClass = 'PathFindingVisualizer.PathFindingVisualizerGUI'
 }
 
 tasks.named('test') {

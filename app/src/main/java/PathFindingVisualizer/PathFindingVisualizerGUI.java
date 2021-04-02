@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.SwingUtilities;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -365,5 +366,13 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
   @Override
   public void mouseExited(MouseEvent e) {
     //Not needed
+  }
+
+  public static void main(String[] args){
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run(){
+        new PathFindingVisualizerGUI();
+      }
+    });
   }
 }
