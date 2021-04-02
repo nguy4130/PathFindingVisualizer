@@ -13,7 +13,7 @@ public class PathFindingVisualizerCore {
     if(algorithm.equals("Dijkstra's Search")){
       SearchAlgorithms.dijkstra(grid, gui);
     } else if(algorithm.equals("A* Search")){
-      SearchAlgorithms.astar(grid, gui);
+      SearchAlgorithms.aStarSearch(grid, gui);
     } else if(algorithm.equals("Breadth First Search")){
       SearchAlgorithms.bfs(grid, gui);
     } else if(algorithm.equals("Depth First Search")){

@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,9 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     "Breadth First Search",
     "Depth First Search"
   };
+  static {
+    Arrays.sort(algorithms);
+  }
 
   public static final int DEFAULT_MODE = 0;
   public static final int WALL_MODE = 1;

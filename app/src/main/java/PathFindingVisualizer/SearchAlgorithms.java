@@ -10,6 +10,7 @@ import java.util.logging.Level;
 
 public class SearchAlgorithms {
   
+  /** Dijkstra's Search */
   public static List<NodeDijkstra> dijkstra(int[][] map, PathFindingVisualizerGUI gui) {
     int size = map.length;
     NodeDijkstra startNode = null;
@@ -42,40 +43,18 @@ public class SearchAlgorithms {
     q.add(startNode);
     while(!q.isEmpty()) {
       NodeDijkstra current = q.poll();
-      // Move up
-      if((current.getPosition()[0] - 1) >= 0){
-        NodeDijkstra temp = grid[current.getPosition()[0]-1][current.getPosition()[1]];
-        if(!temp.isVisited() && !temp.isBlocked() && (temp.getDistance() > (current.getDistance()+1))) {
-          temp.setDistance(current.getDistance() + 1);
-          temp.setParent(current);
-          q.add(temp);
-        }
-      }
-      // Move left
-      if((current.getPosition()[1] - 1) >= 0) {
-        NodeDijkstra temp = grid[current.getPosition()[0]][current.getPosition()[1]-1];
-        if(!temp.isVisited() && !temp.isBlocked() && (temp.getDistance() > (current.getDistance()+1))){
-          temp.setDistance(current.getDistance() + 1);
-          temp.setParent(current);
-          q.add(temp);
-        }
-      }
-      // Move right
-      if((current.getPosition()[1] + 1) < size) {
-        NodeDijkstra temp = grid[current.getPosition()[0]][current.getPosition()[1]+1];
-        if(!temp.isVisited() && !temp.isBlocked() && (temp.getDistance() > (current.getDistance()+1))){
-          temp.setDistance(current.getDistance() + 1);
-          temp.setParent(current);
-          q.add(temp);
-        }
-      }
-      // Move down
-      if((current.getPosition()[0] + 1) < size) {
-        NodeDijkstra temp = grid[current.getPosition()[0]+1][current.getPosition()[1]];
-        if(!temp.isVisited() && !temp.isBlocked() && (temp.getDistance() > (current.getDistance()+1))){
-          temp.setDistance(current.getDistance() + 1);
-          temp.setParent(current);
-          q.add(temp);
+      int[] dx = new int[]{0, 0, -1, 1};
+      int[] dy = new int[]{1, -1, 0, 0};
+      for(int i = 0; i < dx.length; i++){
+        int nextX = current.getPosition()[0]+dx[i];
+        int nextY = current.getPosition()[1]+dy[i];
+        if(validLocation(nextX, nextY, size)){
+          NodeDijkstra temp = grid[nextX][nextY];
+          if(!temp.isVisited() && !temp.isBlocked() && (temp.getDistance() > (current.getDistance()+1))) {
+            temp.setDistance(current.getDistance() + 1);
+            temp.setParent(current);
+            q.add(temp);
+          }
         }
       }
       current.setVisited(true);
@@ -235,112 +214,136 @@ public class SearchAlgorithms {
     return result;
   }
   /** A* Search */
-  // public static List<NodeAStar> aStarSearch(int[] map, PathFindingVisualizerGUI gui){
-  //   int size = map.length;
-  //   NodeAStar startNode = null;
-  //   NodeAStar endNode = null;
-
-  //   for(int i = 0; i < size; i++){
-  //     for(int j = 0; j < size; j++){
-
-  //     }
-  //   }
-  // }
-
-  public static List<NodeAStar> astar(int[][] map,  PathFindingVisualizerGUI gui){
-    
-    PathFindingVisualizerUtils.LOGGER.log(Level.INFO, "Doing A* Search");
-
-    int[] start = new int[2]; 
-    int[] end = new int[2];
-    for(int i = 0; i < map.length; i++){
-      for(int j = 0; j < map[0].length; j++){
+  public static List<NodeAStar> aStarSearch(int[][] map, PathFindingVisualizerGUI gui){
+    NodeAStar startNode = new NodeAStar(null, 0, 0);
+    NodeAStar endNode = new NodeAStar(null, 0, 0);
+    int size = map.length;
+    NodeAStar[][] nodeGrid = new NodeAStar[size][size];
+    for(int i = 0; i < size; i++){
+      for(int j = 0; j < size; j++){
         if(map[i][j] == PathFindingVisualizerGUI.START_MODE){
-          start[0] = i;
-          start[1] = j;
+          startNode.setPosition(new int[]{i, j});
+          nodeGrid[i][j] = startNode;
+          nodeGrid[i][j].setBlocked(false);
         } else if(map[i][j] == PathFindingVisualizerGUI.END_MODE){
-          end[0] = i;
-          end[1] = j;
+          endNode.setPosition(new int[]{i, j});
+          nodeGrid[i][j] = endNode;
+          nodeGrid[i][j].setBlocked(false);
+        } else if(map[i][j] == PathFindingVisualizerGUI.WALL_MODE){
+          nodeGrid[i][j] = new NodeAStar(null, i, j);
+          nodeGrid[i][j].setBlocked(true);
+        } else {
+          nodeGrid[i][j] = new NodeAStar(null, i, j);
+          nodeGrid[i][j].setBlocked(false);
         }
       }
     }
-    //Create start and end node
-    NodeAStar startNode = new NodeAStar(null, start);
-    NodeAStar endNode = new NodeAStar(null, end);
+
+    List<NodeAStar> result = new ArrayList<>();
+    if(startNode.match(endNode)){
+      return result;
+    }
 
     //Initialize open and closed lists
     List<NodeAStar> openList = new ArrayList<>();
     List<NodeAStar> closedList = new ArrayList<>();
-
-    //Add startNode to openList
-    openList.add(startNode);
-
-    //Loop to find the path
-    while(!openList.isEmpty()){
-      System.out.println("Here");
-      //Get current node
-      NodeAStar currentNode = openList.get(0);
-      int currentIndex = 0;
-      for(int i = 0; i < openList.size(); i++){
-        if(openList.get(i).getF() < currentNode.getF()){
-          currentNode = openList.get(i);
-          currentIndex = i;
-        }
-      }
-      
-      //Pop current off open list, add to closed list
-      openList.remove(currentIndex);
-      closedList.add(currentNode);
-      
-      //Found the goal
-      if(currentNode.match(endNode)){
-        List<NodeAStar> pathAStar = new ArrayList<>();
-        NodeAStar current = currentNode;
-        while(current != null){
-          pathAStar.add(current);
-          current = current.getParent();
-        }
-        for(NodeAStar node: pathAStar){
-          gui.updateTileColor(node.getPosition(), PathFindingVisualizerGUI.RESULT_COLOR);
-        }
-        return pathAStar;
-      }
-
-      //Generate children
-      List<NodeAStar> children = new ArrayList<>();
-      int[] dx = {0, 0, -1, 1};
-      int[] dy = {-1, 1, 0, 0};
-      for(int move = 0; move < 4; move++){
-        int[] newPosition = new int[2];
-        newPosition[0] = currentNode.getPosition()[0] + dx[move];
-        newPosition[1] = currentNode.getPosition()[1] + dy[move];
-
-        //Check within range and walkable terrain
-        if(newPosition[0] <= (map.length - 1) && 
-            newPosition[0] >= 0 &&
-            newPosition[1] <= (map[map.length - 1].length - 1) && 
-            newPosition[1] >= 0 && 
-            map[newPosition[0]][newPosition[1]] == PathFindingVisualizerGUI.DEFAULT_MODE){
-              NodeAStar newChildNode = new NodeAStar(currentNode, newPosition);
-              children.add(newChildNode);
-            }
-      }
-
-      //Loop through children nodes
-      for(NodeAStar child: children){
-        if(!closedList.contains(child)){
-          child.setG(currentNode.getG() + 1);
-          child.setH((child.getPosition()[0] - endNode.getPosition()[0]) * (child.getPosition()[0] - endNode.getPosition()[0]) +
-                    (child.getPosition()[1] - endNode.getPosition()[1]) * (child.getPosition()[1] - endNode.getPosition()[1]));
-          child.setF(child.getG() + child.getH());
-        }
-        if(!openList.contains(child)){
-          openList.add(child);
-        }
-      }
-    }
-    return new ArrayList<>();
+    return result;
   }
+
+  // public static List<NodeAStar> astar(int[][] map,  PathFindingVisualizerGUI gui){
+    
+  //   PathFindingVisualizerUtils.LOGGER.log(Level.INFO, "Doing A* Search");
+
+  //   int[] start = new int[2]; 
+  //   int[] end = new int[2];
+  //   for(int i = 0; i < map.length; i++){
+  //     for(int j = 0; j < map[0].length; j++){
+  //       if(map[i][j] == PathFindingVisualizerGUI.START_MODE){
+  //         start[0] = i;
+  //         start[1] = j;
+  //       } else if(map[i][j] == PathFindingVisualizerGUI.END_MODE){
+  //         end[0] = i;
+  //         end[1] = j;
+  //       }
+  //     }
+  //   }
+  //   //Create start and end node
+  //   NodeAStar startNode = new NodeAStar(null, start);
+  //   NodeAStar endNode = new NodeAStar(null, end);
+
+  //   //Initialize open and closed lists
+  //   List<NodeAStar> openList = new ArrayList<>();
+  //   List<NodeAStar> closedList = new ArrayList<>();
+
+  //   //Add startNode to openList
+  //   openList.add(startNode);
+
+  //   //Loop to find the path
+  //   while(!openList.isEmpty()){
+  //     System.out.println("Here");
+  //     //Get current node
+  //     NodeAStar currentNode = openList.get(0);
+  //     int currentIndex = 0;
+  //     for(int i = 0; i < openList.size(); i++){
+  //       if(openList.get(i).getF() < currentNode.getF()){
+  //         currentNode = openList.get(i);
+  //         currentIndex = i;
+  //       }
+  //     }
+      
+  //     //Pop current off open list, add to closed list
+  //     openList.remove(currentIndex);
+  //     closedList.add(currentNode);
+      
+  //     //Found the goal
+  //     if(currentNode.match(endNode)){
+  //       List<NodeAStar> pathAStar = new ArrayList<>();
+  //       NodeAStar current = currentNode;
+  //       while(current != null){
+  //         pathAStar.add(current);
+  //         current = current.getParent();
+  //       }
+  //       for(NodeAStar node: pathAStar){
+  //         gui.updateTileColor(node.getPosition(), PathFindingVisualizerGUI.RESULT_COLOR);
+  //       }
+  //       return pathAStar;
+  //     }
+
+  //     //Generate children
+  //     List<NodeAStar> children = new ArrayList<>();
+  //     int[] dx = {0, 0, -1, 1};
+  //     int[] dy = {-1, 1, 0, 0};
+  //     for(int move = 0; move < 4; move++){
+  //       int[] newPosition = new int[2];
+  //       newPosition[0] = currentNode.getPosition()[0] + dx[move];
+  //       newPosition[1] = currentNode.getPosition()[1] + dy[move];
+
+  //       //Check within range and walkable terrain
+  //       if(newPosition[0] <= (map.length - 1) && 
+  //           newPosition[0] >= 0 &&
+  //           newPosition[1] <= (map[map.length - 1].length - 1) && 
+  //           newPosition[1] >= 0 && 
+  //           map[newPosition[0]][newPosition[1]] == PathFindingVisualizerGUI.DEFAULT_MODE){
+  //             NodeAStar newChildNode = new NodeAStar(currentNode, newPosition);
+  //             children.add(newChildNode);
+  //           }
+  //     }
+
+  //     //Loop through children nodes
+  //     for(NodeAStar child: children){
+  //       if(!closedList.contains(child)){
+  //         child.setG(currentNode.getG() + 1);
+  //         child.setH((child.getPosition()[0] - endNode.getPosition()[0]) * (child.getPosition()[0] - endNode.getPosition()[0]) +
+  //                   (child.getPosition()[1] - endNode.getPosition()[1]) * (child.getPosition()[1] - endNode.getPosition()[1]));
+  //         child.setF(child.getG() + child.getH());
+  //       }
+  //       if(!openList.contains(child)){
+  //         openList.add(child);
+  //       }
+  //     }
+  //   }
+  //   return new ArrayList<>();
+  // }
 
 
   /** ARA* Search */

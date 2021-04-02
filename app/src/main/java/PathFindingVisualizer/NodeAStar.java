@@ -1,43 +1,42 @@
 package PathFindingVisualizer;
 
-public class NodeAStar {
-  private NodeAStar parent;
-  private int[] position;
+public class NodeAStar extends Node{
+  
   private int g;
   private int h;
   private int f;
 
   public NodeAStar(NodeAStar parent, int[] position){
+    super(position);
     this.parent = parent;
-    this.position = position;
+
+    this.g = 0;
+    this.h = 0;
+    this.f = 0;
+  }
+  public NodeAStar(NodeAStar parent, int x, int y){
+    super(x, y);
+    this.parent = parent;
 
     this.g = 0;
     this.h = 0;
     this.f = 0;
   }
 
-  public String toString(){
-    return "(" + this.position[0] + " , " + this.position[1] + ")";
+  public NodeAStar(int[] position){
+    super(position);
+
+    this.g = 0;
+    this.h = 0;
+    this.f = 0;
   }
 
-  public boolean match(NodeAStar other){
-    return this.position[0] == other.position[0] && this.position[1] == other.position[1];
-  }
+  public NodeAStar(int x, int y){
+    super(x, y);
 
-  public void setParent(NodeAStar parent){
-    this.parent = parent;
-  }
-
-  public NodeAStar getParent(){
-    return this.parent;
-  }
-
-  public void setPosition(int[] position){
-    this.position = position;
-  }
-
-  public int[] getPosition() {
-    return this.position;
+    this.g = 0;
+    this.h = 0;
+    this.f = 0;
   }
 
   public void setG(int g){
@@ -63,4 +62,14 @@ public class NodeAStar {
   public int getF() {
     return this.f;
   }
+
+  // @Override
+  // public NodeAStar getParent(){
+  //   return this.parent;
+  // }
+
+  // @Override
+  // public void setParent(NodeAStar parent){
+  //   this.parent = (Node) parent;
+  // }
 }
