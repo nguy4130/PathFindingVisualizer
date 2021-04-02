@@ -48,8 +48,6 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     "Depth First Search"
   };
 
-  private static Map<Integer, Color> modeToColor;
-
   public static final int DEFAULT_MODE = 0;
   public static final int WALL_MODE = 1;
   public static final int START_MODE = 2;
@@ -58,6 +56,14 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
   private static final Color WALL_COLOR = Color.BLACK;
   private static final Color START_COLOR = Color.RED;
   private static final Color END_COLOR = Color.BLUE;
+
+  private static Map<Integer, Color> modeToColor;
+  static {
+    modeToColor = new HashMap<>();
+    modeToColor.put(WALL_MODE, WALL_COLOR);
+    modeToColor.put(START_MODE, START_COLOR);
+    modeToColor.put(END_MODE, END_COLOR);
+  }
 
   private int gridSize;
   private int mode;
@@ -86,11 +92,6 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
   private List<List<JPanel>> grid;
 
   public PathFindingVisualizerGUI() {
-     
-    modeToColor = new HashMap<>();
-    modeToColor.put(WALL_MODE, WALL_COLOR);
-    modeToColor.put(START_MODE, START_COLOR);
-    modeToColor.put(END_MODE, END_COLOR);
 
     /** Set General Frame */
     frame = new JFrame("Pathfinding Visualizer");
