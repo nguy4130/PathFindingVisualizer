@@ -1,5 +1,19 @@
 # PathFindingVisualizer
 
-- [X] Build GUI with buttons and grid map.
-- [X] Implement Dijkstra, A* and Breadth First Search.
-- [X] Connect the GUI to the back-end to visualize the algorithms.
+## To get started
+
+Clone this repository to your local machine:
+
+```shell
+git clone https://github.com/nguy4130/PathFindingVisualizer.git
+```
+
+To open the GUI, run the following command:
+
+```shell
+./gradlew run
+```
+
+## Resources
+
+The screenshots of the GUI can be found in [resources](https://github.com/nguy4130/PathFindingVisualizer/tree/master/resources).

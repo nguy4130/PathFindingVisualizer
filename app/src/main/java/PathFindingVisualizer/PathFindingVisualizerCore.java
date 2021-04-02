@@ -1,6 +1,5 @@
 package PathFindingVisualizer;
 
-import java.util.List;
 
 public class PathFindingVisualizerCore {
   
@@ -12,8 +11,13 @@ public class PathFindingVisualizerCore {
 
   public void search(String algorithm, int[][] grid) {
     if(algorithm.equals("Dijkstra's Search")){
-      List<NodeDijkstra> pathDijkstra = SearchAlgorithms.dijkstra(grid, gui);
-      // gui.updateResult(pathDijkstra);
+      SearchAlgorithms.dijkstra(grid, gui);
+    } else if(algorithm.equals("A* Search")){
+      SearchAlgorithms.astar(grid, gui);
+    } else if(algorithm.equals("Breadth First Search")){
+      SearchAlgorithms.bfs(grid, gui);
+    } else if(algorithm.equals("Depth First Search")){
+      SearchAlgorithms.dfs(grid, gui);
     }
   }
 }

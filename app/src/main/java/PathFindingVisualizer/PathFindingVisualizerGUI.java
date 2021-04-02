@@ -43,19 +43,27 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     "Dijkstra's Search", 
     "A* Search", 
     "Modified A* Search",
-    "Greedy Best-First Search"
+    "Greedy Best-First Search",
+    "Breadth First Search",
+    "Depth First Search"
   };
 
-  private static Map<Integer, Color> modeToColor;
-
-  private static final int DEFAULT_MODE = 0;
-  private static final int WALL_MODE = 1;
-  private static final int START_MODE = 2;
-  private static final int END_MODE = 3;
+  public static final int DEFAULT_MODE = 0;
+  public static final int WALL_MODE = 1;
+  public static final int START_MODE = 2;
+  public static final int END_MODE = 3;
 
   private static final Color WALL_COLOR = Color.BLACK;
   private static final Color START_COLOR = Color.RED;
   private static final Color END_COLOR = Color.BLUE;
+
+  private static Map<Integer, Color> modeToColor;
+  static {
+    modeToColor = new HashMap<>();
+    modeToColor.put(WALL_MODE, WALL_COLOR);
+    modeToColor.put(START_MODE, START_COLOR);
+    modeToColor.put(END_MODE, END_COLOR);
+  }
 
   private int gridSize;
   private int mode;
@@ -84,11 +92,6 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
   private List<List<JPanel>> grid;
 
   public PathFindingVisualizerGUI() {
-     
-    modeToColor = new HashMap<>();
-    modeToColor.put(WALL_MODE, WALL_COLOR);
-    modeToColor.put(START_MODE, START_COLOR);
-    modeToColor.put(END_MODE, END_COLOR);
 
     /** Set General Frame */
     frame = new JFrame("Pathfinding Visualizer");
@@ -155,7 +158,7 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     fileChooser = new JFileChooser();
     FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("CSV or TEXT FILES", "txt", "csv");
     fileChooser.setFileFilter(fileFilter);
-    fileChooser.setCurrentDirectory(new File("."));
+    fileChooser.setCurrentDirectory(new File("../predefinedMaps"));
     backend = new PathFindingVisualizerCore(this);
   }
 
@@ -262,31 +265,28 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
       }
       list.remove(row);
     }
+    list.clear();
   }
 
   private int[][] renderGrid() {
     int[][] res = new int[gridSize][gridSize];
-    String s = "";
+    StringBuilder s = new StringBuilder();
     for(int i = 0; i < gridSize; i++){
       for(int j = 0; j < gridSize; j++){
         if(grid.get(i).get(j).getBackground() == WALL_COLOR){
           res[i][j] = WALL_MODE;
-          // s += WALL_MODE + " ";
         } else if(grid.get(i).get(j).getBackground() == START_COLOR){
           res[i][j] = START_MODE;
-          // s += START_MODE + " ";
         } else if(grid.get(i).get(j).getBackground() == END_COLOR){
           res[i][j] = END_MODE;
-          // s += END_COLOR + " ";
         } else {
           res[i][j] = DEFAULT_MODE;
-          // s += "0 ";
         }
-        s += res[i][j] + " ";
+        s.append(res[i][j] + " ");
       }
-      s += System.lineSeparator();
+      s.append(System.lineSeparator());
     }
-    System.out.println(s);
+    System.out.println(s.toString());
     return res;
   }
 
@@ -336,7 +336,8 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
     try {
       if(grid.get(pos[0]).get(pos[1]).getBackground() != START_COLOR &&
           grid.get(pos[0]).get(pos[1]).getBackground() != END_COLOR){
-            grid.get(pos[0]).get(pos[1]).setBackground(RESULT_COLOR);
+            grid.get(pos[0]).get(pos[1]).setBackground(color);
+            Thread.sleep(500);
       } 
     } catch(Exception e){
       PathFindingVisualizerUtils.LOGGER.log(Level.SEVERE, e.toString());
@@ -344,25 +345,21 @@ public class PathFindingVisualizerGUI implements ActionListener, MouseListener {
   }
   @Override
   public void mousePressed(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
+    //Not needed
   }
 
   @Override
   public void mouseReleased(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
+    //Not needed
   }
 
   @Override
   public void mouseEntered(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
+    //Not needed 
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
+    //Not needed
   }
 }
