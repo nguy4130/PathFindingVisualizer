@@ -18,6 +18,8 @@ public class PathFindingVisualizerCore {
       SearchAlgorithms.bfs(grid, gui);
     } else if(algorithm.equals("Depth First Search")){
       SearchAlgorithms.dfs(grid, gui);
+    } else if(algorithm.equals("Greedy Best-First Search")){
+      // SearchAlgorithms.greedy(grid, gui);
     }
   }
 }

@@ -1,14 +1,22 @@
 package PathFindingVisualizer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Level;
 
 public class SearchAlgorithms {
+  enum Direction {
+    NORTH,
+    SOUTH,
+    EAST, 
+    WEST
+  }
   
   /** Dijkstra's Search */
   public static List<NodeDijkstra> dijkstra(int[][] map, PathFindingVisualizerGUI gui) {
@@ -247,9 +255,63 @@ public class SearchAlgorithms {
     //Initialize open and closed lists
     List<NodeAStar> openList = new ArrayList<>();
     List<NodeAStar> closedList = new ArrayList<>();
+    
     return result;
   }
 
+  /** Greedy best-first search */
+  // public static List<Node> greedy(int[][] map, PathFindingVisualizerGUI gui){
+  //   Node startNode = new Node(0, 0);
+  //   Node endNode = new Node(0, 0);
+  //   int size = map.length;
+  //   Node[][] nodeGrid = new Node[size][size];
+  //   for(int i = 0; i < size; i++){
+  //     for(int j = 0; j < size; j++){
+  //       if(map[i][j] == PathFindingVisualizerGUI.START_MODE){
+  //         startNode.setPosition(new int[]{i, j});
+  //         nodeGrid[i][j] = startNode;
+  //         nodeGrid[i][j].setBlocked(false);
+  //       } else if(map[i][j] == PathFindingVisualizerGUI.END_MODE){
+  //         endNode.setPosition(new int[]{i, j});
+  //         nodeGrid[i][j] = endNode;
+  //         nodeGrid[i][j].setBlocked(false);
+  //       } else if(map[i][j] == PathFindingVisualizerGUI.WALL_MODE){
+  //         nodeGrid[i][j] = new NodeAStar(null, i, j);
+  //         nodeGrid[i][j].setBlocked(true);
+  //       } else {
+  //         nodeGrid[i][j] = new NodeAStar(null, i, j);
+  //         nodeGrid[i][j].setBlocked(false);
+  //       }
+  //     }
+  //   }
+
+  //   List<Node> result = new ArrayList<>();
+  //   if(startNode.match(endNode)){
+  //     return result;
+  //   }
+
+  //   Node current = startNode;
+  //   Set<Direction> dirs = possibleDirections(map, current);
+
+
+  // }
+
+  // private static Set<Direction> possibleDirections(int[][] map, Node current){
+  //   Set<Direction> possibleDir = new HashSet<>();
+
+  //   int[] dx = new int[]{0, 0, -1, 1};
+  //   int[] dy = new int[]{1, -1, 0, 0};
+
+  //   Direction[] dirs = new Direction[]{Direction.EAST, Direction.WEST, Direction.NORTH, Direction.SOUTH};
+    
+  //   for(int i = 0; i < dx.length; i++){
+  //     if(validLocation(current.getPosition()[0]+dx[i], current.getPosition()[1]+dy[1], map.length)){
+  //       possibleDir.add(dirs[i]);
+  //     }
+  //   }
+
+  //   return possibleDir;
+  // }
   // public static List<NodeAStar> astar(int[][] map,  PathFindingVisualizerGUI gui){
     
   //   PathFindingVisualizerUtils.LOGGER.log(Level.INFO, "Doing A* Search");
